@@ -1,0 +1,147 @@
+body {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+}
+#combo {
+    position: absolute;
+    bottom: 0%;
+    left: 0%;
+    z-index: -1;
+    font-family: sans-serif;
+    font-size: 8em;
+}
+
+#score {
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    z-index: -1;
+    font-family: sans-serif;
+    font-size: 5em;
+}
+
+#judgment {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+    font-family: sans-serif;
+    font-size: 4em;
+}
+
+#time {
+    position: absolute;
+    top: 0%;
+    right: 0%;
+    z-index: -1;
+    font-family: sans-serif;
+    font-size: 5em;
+}
+
+#container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+
+    flex-direction: column;
+}
+
+#intro {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+
+    font-weight: bold;
+    font-family: sans-serif;
+    font-size: 1.5rem;
+    width: 500px;
+    height: auto;
+    text-align: center;
+    padding: 20px;
+
+    background-color: #d3d3d3;
+    border-radius: 20px;
+
+    flex-direction: column;
+}
+
+#options {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 2rem;
+
+    font-weight: bold;
+    font-family: sans-serif;
+    font-size: 1.2rem;
+    width: 500px;
+    height: auto;
+    text-align: center;
+    padding: 20px;
+
+    background-color: #e2e2e2;
+    border-radius: 20px;
+
+    flex-direction: column;
+}
+
+#cursorColorInput, #approachRateInput {
+    margin: 0.5rem;
+}
+
+#startButton {
+    margin-top: 2rem;
+    font-size: 1.75rem;
+    border-radius: 10px;
+}
+
+#subtext {
+    font-size: 1rem;
+}
+
+#p5link {
+    color: blue;
+}
+
+#three, #two, #one, #finalScore {
+    visibility: hidden;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+    font-family: sans-serif;
+    font-size: 6em;
+}
+
+#default {
+    font-size: 0.8rem;
+    margin-bottom: 3rem;
+}
+
+
+#defaultNoBot {
+    font-size: 0.8rem;
+}
+
+#debug {
+    position: absolute;
+    top: 70%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+    font-family: sans-serif;
+    font-size: 4em;
+    display: none;
+    /* visibility: visible; */
+}

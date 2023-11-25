@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P5osu!</title>
+    <script src="p5.js"></script>
+    <!-- Includes the p5.collide2D addon library -->
+    <script defer src="https://unpkg.com/p5.collide2d"></script>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body id="nocursor">
+    <span id="combo">0x</span>
+    <span id="score">0</span>
+    <span id="judgment"></span>
+    <span id="debug">Unstable Rate</span>
+
+    <span id="three">3</span>
+    <span id="two">2</span>
+    <span id="one">1</span>
+
+    <span id="finalScore"></span>
+
+    <div id="container">
+        <div id="intro">
+            <p>Welcome to P5osu!</p>
+            <p id="subtext">This is a rough recreation of the rhythm game osu! using <a href="https://p5js.org/" target="_blank" rel="noopener noreferrer" id="p5link">p5.js</a></p>
+            <p id="subtext">You can change the Cursor Color option (for now)</p>
+            <p>Enjoy :)</p>
+        </div>
+
+        <div id="options">
+            <span>Change Cursor Color</span>
+            <input type="text" placeholder="red, blue, yellow, black" id="cursorColorInput"></input>
+            <span id="default">Default: orange</span>
+            <span>Change Approach Rate</span>
+            <input type="text" placeholder="NOT WORKING RN" id="approachRateInput"></input>
+            <span id="defaultNoBot">Default: 8</span>
+        </div>
+
+        <button id="startButton" onclick="changeMode()">Start</button>
+    </div>
+
+    <script>
+
+        // Horse image
+        // let horse;
+        // image(horse, eX, eY, 100, 100)
+
+        var h = window.innerHeight;
+        var w = window.innerWidth;
+
+        // Mode 0 is starting, Mode 1 is game screen, Mode 2 is results screen (WIP)
+        var mode;
+
+        // The variable to determine if the object was hit
+        var hit = false;
+        var combo = 0;
+        var score = 0;
+        var accuracy;
+        parseFloat(accuracy).toFixed(2);
+        var hitType;
+        
+        // Store the enemy X and Y positions
+        let eX = w/2;
+        let eY = h/2;
+
+        // Approach circle values
+        let approachCircle = 200;
+        var currentApproachCircle;
+        var hitCircleNum = 1;
+
+        let cursorSize = 50;
+        let circleSize = 100;
+
+        // Player performance values
+        var num300 = 0;
+        var num100 = 0;
+        var num50 = 0;
+        var numMiss = 0;
+
+        function setup() {
+            mode = 0;
+            createCanvas(w, h);
+            // horse = loadImage("horse.png")
+        }
+
+        function draw() {
+            clear();
+            accuracy = (((300 * num300) + (100 * num100) + (50 * num50)) / (300 * (num300 + num100 + num50 + numMiss))); // Formula stolen from osu lol
+            accuracy /= Math.pow(10, -2);
+
+            if (mode == 0) {
+                document.getElementById("container").style.visibility = "visible";
+                document.getElementById("combo").style.visibility = "hidden";
+                document.getElementById("score").style.visibility = "hidden";
+                document.getElementById("judgment").style.visibility = "hidden";
+                document.getElementById("nocursor").style.cursor = "auto";
+            }
+
+            if (mode == 1) {
+                document.getElementById("container").style.display = "none";
+                document.getElementById("combo").style.visibility = "visible";
+                document.getElementById("score").style.visibility = "visible";
+                document.getElementById("judgment").style.visibility = "visible";
+                document.getElementById("nocursor").style.cursor = "auto";
+
+                function delay(ms) { // Asynchronous wait with JS to display countdown
+                    return new Promise(resolve => {
+                        setTimeout(resolve, ms);
+                    });
+                }
+
+                async function init() {
+                    document.getElementById("three").style.visibility = "visible";
+                    await delay(1000);
+                    document.getElementById("three").style.display = "none";
+                    document.getElementById("two").style.visibility = "visible";
+                    await delay(1000);
+                    document.getElementById("two").style.display = "none";
+                    document.getElementById("one").style.visibility = "visible";
+                    await delay(1000);
+                    document.getElementById("one").style.display = "none";
+                    document.getElementById("nocursor").style.cursor = "none";
+                    await delay(500);
+                    mode = 2;
+                }
+
+                init();
+            }
+
+            if (mode == 2) {
+                clear();
+
+                //setTimeout(function() {
+                    //mode = 3;
+                //}, 12000)
+
+                // Create the hit circle
+                fill(255, 255, 255, 0);
+                strokeWeight(2);
+                circle(eX, eY, circleSize);
+
+                // Approach circle
+                fill(255, 255, 255, 0);
+                strokeWeight(2);
+                circle(eX, eY, approachCircle);
+
+                // Hit circle number
+                textSize(55);
+                fill("#000000");
+                text(hitCircleNum, eX, eY);
+                textAlign(CENTER, CENTER);
+
+                // Create the player cursor circle
+                if (document.getElementById("cursorColorInput").value == "") {
+                    fill("#ffb133");
+                } else {
+                    var chosenColor = document.getElementById("cursorColorInput").value;
+                    fill(chosenColor);
+                }
+                strokeWeight(0);
+                circle(mouseX, mouseY, cursorSize);
+
+                // Check to see if there's a collision
+                // x1, y1, width, height, x2, y2, width2, height2
+                hit = collideCircleCircle(mouseX, mouseY, cursorSize, eX, eY, circleSize); // This results in a boolean expression
+                
+                if (hit == true) {
+
+                    approachCircle -= 3; // This value is the approach rate, seems like around 8 rn
+
+                    if (approachCircle <= 0) { // This happens after you hover and you miss
+                        approachCircle = 0; // Fixes the outward moving approach circle bug
+                        combo = 0;
+                        document.getElementById("combo").textContent = combo + "x";
+                        document.getElementById("score").textContent = score;
+                        hitType = "Miss";
+                        document.getElementById("judgment").textContent = hitType;
+                        numMiss++;
+                        drawNewCircle();
+                        hitCircleNum++;
+
+                        hit = false;
+                    }
+
+                    window.onkeypress = function(event) {
+                        if ((event.keyCode == 122 || event.keyCode == 120) && hit == true) {
+                            currentApproachCircle = approachCircle;
+
+                            if ((currentApproachCircle > 0 && currentApproachCircle < 50) || (currentApproachCircle > 150 && currentApproachCircle < 200)) {
+                                hitType = "50";
+                                document.getElementById("judgment").textContent = hitType;
+                                num50++;
+                            } else if ((currentApproachCircle >= 50 && currentApproachCircle <= 90) || (currentApproachCircle >= 110 && currentApproachCircle <= 150)) {
+                                hitType = "100";
+                                document.getElementById("judgment").textContent = hitType;
+                                num100++;
+                            } else if (currentApproachCircle > 90 && currentApproachCircle < 110) {
+                                hitType = "300";
+                                document.getElementById("judgment").textContent = hitType;
+                                num300++
+                            }
+
+                            combo++;
+
+                            if (hitType == "300") {
+                                score = score + (300 * combo)
+                            } else if (hitType == "100") {
+                                score = score + (100 * combo)
+                            } else if (hitType == "50") {
+                                score = score + (50 * combo)
+                            }
+
+                            document.getElementById("combo").textContent = combo + "x";
+                            document.getElementById("score").textContent = score;
+                            drawNewCircle();
+                            hitCircleNum++;
+                            document.getElementById("debug").textContent = currentApproachCircle;
+                        }   
+                    }
+
+                } else if (hit == false) {
+
+                    approachCircle -= 3; // AR
+
+                    if (approachCircle <= 0) { // This happens after you completely miss; you misaim and circle
+                        approachCircle = 0; // Fixes the outward moving approach circle bug
+                        combo = 0;
+                        document.getElementById("combo").textContent = combo + "x";
+                        document.getElementById("score").textContent = score;
+                        hitType = "Miss";
+                        document.getElementById("judgment").textContent = hitType;
+                        numMiss++;
+                        drawNewCircle();
+                        hitCircleNum++;
+
+                        hit = false;
+                    }
+                }
+            }
+
+            if (mode == 3) {
+                clear();
+                document.getElementById("combo").style.display = "none";
+                document.getElementById("score").style.display = "none";
+                document.getElementById("judgment").style.display = "none";
+                document.getElementById("nocursor").style.cursor = "auto";
+
+                document.getElementById("finalScore").textContent = "Final Score - " + score;
+                document.getElementById("finalScore").style.visibility = "visible";
+            }
+
+            console.log(accuracy);
+        }
+            
+        function drawNewCircle() {
+            eX = random(200, w-200);
+            eY = random(200, h-200);
+            approachCircle = 200;
+        }
+        
+        function changeMode() {
+            mode = 1;
+        }
+
+    </script>
+</body>
+</html>
